@@ -8,8 +8,13 @@ def mafft(msa_file, msa_output):
     :param msa_file: Fasta bestand met de sequenties die je wilt alignen
     :param msa_output: Bestand waar de alignment naar toe moet worden geschreven
     """
-    os.system('mafft "{}" > "{}"'.format(msa_file, msa_output))
-    print("MSA succesvol uitgevoerd!")
+    if os.path.isfile(msa_output):
+        # Foutmelding voor wanneer bestand bestand met MSA al bestaat
+        print("Bestand voor MSA bestaat al! Kies een andere naam.")
+        exit()
+    else:
+        os.system('mafft "{}" > "{}"'.format(msa_file, msa_output))
+        print("MSA succesvol uitgevoerd!")
     return
 
 
@@ -19,8 +24,17 @@ def hmmbuild(msa_output, hmm_output):
     :param msa_output: Bestand met daarin de alignment waarvan je een HMM profiel wilt maken
     :param hmm_output: Bestand waar het HMM profiel naar toe moet worden geschreven
     """
-    os.system('hmmbuild "{}" "{}"'.format(hmm_output, msa_output))
-    print("HHMbuild succesvol uitgevoerd!")
+    if os.path.isfile(hmm_output):
+        # Foutmelding voor wanneer bestand met HMM output al bestaat
+        print("Bestand voor HMM bestaat al! Kies een andere naam.")
+        exit()
+    elif not os.path.isfile(msa_output):
+        # Foutmelding voor wanneer MSA bestand niet kan worden gevonden
+        print("Bestand met MSA kan niet worden gevonden! Er kan geen HMM profiel worden gemaakt!")
+        exit()
+    else:
+        os.system('hmmbuild "{}" "{}"'.format(hmm_output, msa_output))
+        print("HHMbuild succesvol uitgevoerd!")
     return
 
 
@@ -32,8 +46,17 @@ def hmmsearch(hmmsearch_input, hmmsearch_output, database):
     :param database: Database waarin moet worden gezocht
     :return:
     """
-    os.system('hmmsearch --noali -A "{}" "{}" "{}"'.format(hmmsearch_output, hmmsearch_input, database))
-    print("HMMsearch succesvol uitgevoerd!")
+    if os.path.isfile(hmmsearch_output):
+        # Foutmelding voor wanneer bestand met HMMsearch output al bestaat
+        print("Bestand voor HMMsearch output bestaat al! Kies een andere naam")
+        exit()
+    elif not os.path.isfile(hmmsearch_input):
+        # Foutmelding voor wanneer bestand met HMM profiel niet kan worden gevonden
+        print("Bestand met HMM profiel kan niet worden gevonden! HMMsearch kan niet worden uitgevoerd!")
+        exit()
+    else:
+        os.system('hmmsearch --noali -A "{}" "{}" "{}"'.format(hmmsearch_output, hmmsearch_input, database))
+        print("HMMsearch succesvol uitgevoerd!")
     return
 
 
@@ -43,8 +66,17 @@ def stockholm_to_fasta(fasta_output, hmmsearch_input):
     :param fasta_output: Bestand waar de output naar toe moet worden geschreven
     :param hmmsearch_input: Bestand dat moet om worden gezet naar Fasta format
     """
-    os.system('./esl-reformat -o "{}" -u fasta "{}"'.format(fasta_output, hmmsearch_input))
-    print("Stockholm format succesvol omgezet naar Fasta")
+    if os.path.isfile(fasta_output):
+        # Foutmelding voor wanneer bestand met fasta output al bestaat
+        print("Fasta bestand bestaat al! Kies een andere naam.")
+        exit()
+    elif not os.path.isfile(hmmsearch_input):
+        # Foutmelding voor wanneer HMMserach bestand niet kan worden gevonden
+        print("HMMsearch bestand kan niet worden gevonden! Bestand kan niet worden omgezet naar fasta!")
+        exit()
+    else:
+        os.system('./esl-reformat -o "{}" -u fasta "{}"'.format(fasta_output, hmmsearch_input))
+        print("Stockholm format succesvol omgezet naar Fasta")
     return
 
 
@@ -53,7 +85,10 @@ def jalview(msa_output):
 
     :param msa_output: Bestand met daarin de MSA
     """
-    os.system('/home/rik/opt/jalview/jalview --args -open "{}"'.format(msa_output))
+    if not os.path.isfile(msa_output):
+        print("MSA bestand kan niet worden gevonden! MSA kan niet worden weergegeven in Jalview")
+    else:
+        os.system('/home/rik/opt/jalview/jalview --args -open "{}"'.format(msa_output))
     return
 
 
